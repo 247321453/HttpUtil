@@ -7,5 +7,5 @@ public interface DownloadListener {
 
 	public void onProgress(long pos);
 
-	public void onFinish(int err, String msg);
+	public void onFinish(int err, long size,String msg);
 }

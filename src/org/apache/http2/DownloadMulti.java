@@ -16,8 +16,8 @@ import org.apache.http2.utils.DownloadUtils;
 
 public class DownloadMulti implements Runnable {
 	static final int MAX_THREADS = 8;
-	/** 最小分块256k */
-	static final long BLOCK_NUMBER = 512 * 1024;
+	/** 最小分块k */
+	static final long BLOCK_NUMBER = 384 * 1024;
 	String url;
 	String filepath;
 	DownloadListener listener;
@@ -84,7 +84,7 @@ public class DownloadMulti implements Runnable {
 				return;
 			} else if (length == 0) {
 				//无法访问
-				listener.onFinish(DownloadUtils.ERR_OTHER, "length==0");
+				listener.onFinish(DownloadUtils.ERR_OTHER, 0, "length==0");
 				return;
 			} else {
 				//支持断点续传
@@ -126,7 +126,7 @@ public class DownloadMulti implements Runnable {
 		//有一个在下载都未完成
 		for (int i = 0; i < status.length; i++) {
 			if (status[i]) {
-				System.out.println("wait:" + i);
+			//	System.out.println("wait:" + i);
 				return false;
 			}
 		}
@@ -135,7 +135,7 @@ public class DownloadMulti implements Runnable {
 				continue;
 			} else {
 				if (listener != null) {
-					listener.onFinish(mErr, mErrmsg);
+					listener.onFinish(mErr, 0, mErrmsg);
 				}
 				return false;
 			}
@@ -149,7 +149,7 @@ public class DownloadMulti implements Runnable {
 		DownloadUtils.renameTo(tmpFile, file);
 		DownloadUtils.deleteFile(cfgFile);
 		if (listener != null) {
-			listener.onFinish(DownloadUtils.ERR_NONE, null);
+			listener.onFinish(DownloadUtils.ERR_NONE, 0, null);
 		}
 		executor.shutdown();
 		return true;
@@ -175,16 +175,17 @@ public class DownloadMulti implements Runnable {
 				if (listener != null) {
 					listener.onProgress(pos);
 				}
-				synchronized (lock) {
-					infos[index][0] = start + pos;
-				}
-				updateBlock(filepath + ".cfg", index, infos[index]);
+//				synchronized (lock) {
+//					infos[index][0] = start + pos;
+//				}
+//				updateBlock(filepath + ".cfg", index, infos[index]);
 			}
 
 			@Override
-			public void onFinish(int err, String msg) {
+			public void onFinish(int err, long size, String msg) {
 				synchronized (lock) {
 					status[index] = false;
+					infos[index][0] = start + size;
 				}
 				mErr = err;
 				mErrmsg = msg;
@@ -196,6 +197,7 @@ public class DownloadMulti implements Runnable {
 //						download(tmpFile, i, b);
 //					}
 				}
+				updateBlock(filepath + ".cfg", index, infos[index]);
 			}
 
 			@Override

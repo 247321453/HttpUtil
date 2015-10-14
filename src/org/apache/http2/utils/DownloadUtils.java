@@ -67,6 +67,7 @@ public class DownloadUtils {
 		HttpURLConnection url_con = null;
 		InputStream inputStream = null;
 		RandomAccessFile outputStream = null;
+		long compeleteSize = 0;
 		try {
 			HttpRequest request = client.getHttpRequestByDefault(url);
 			url_con = client.connect(request, args);
@@ -109,7 +110,6 @@ public class DownloadUtils {
 				}
 				byte[] data = new byte[8192];
 				int len = 0;
-				long compeleteSize = 0;
 				while ((len = inputStream.read(data)) != -1) {
 					outputStream.write(data, 0, len);
 					compeleteSize += len;
@@ -121,18 +121,18 @@ public class DownloadUtils {
 			} else {
 				HttpClinetEx.log("err:" + code);
 				if (listener != null) {
-					listener.onFinish(ERR_SERVER, "code=" + code);
+					listener.onFinish(ERR_SERVER, compeleteSize, "code=" + code);
 				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			if (listener != null) {
-				listener.onFinish(ERR_NETWORK_OR_FILE, e.getMessage());
+				listener.onFinish(ERR_NETWORK_OR_FILE, compeleteSize, e.getMessage());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (listener != null) {
-				listener.onFinish(ERR_OTHER, e.getMessage());
+				listener.onFinish(ERR_OTHER, compeleteSize, e.getMessage());
 			}
 		} finally {
 			HttpClinetEx.close(outputStream);
@@ -141,7 +141,7 @@ public class DownloadUtils {
 		}
 		if (connect) {
 			if (listener != null) {
-				listener.onFinish(ERR_NONE, null);
+				listener.onFinish(ERR_NONE, compeleteSize, null);
 			}
 		}
 		return connect;

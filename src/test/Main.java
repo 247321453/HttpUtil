@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.http2.DownloadListener;
 import org.apache.http2.DownloadMulti;
+import org.apache.http2.DownloadSingle;
 import org.apache.http2.HttpClinetEx;
 
 import crypto.DESUtils;
@@ -34,33 +35,39 @@ public class Main {
 		System.setProperty("http.agent", "Mozilla/5.0 (Linux; "
 				+ "Android 4.2.2; Nexus 7 Build/JRO03D) AppleWebKit/535.19 (KHTML, like Gecko) "
 				+ "Chrome/18.0.1025.166 Safari/535.19");
-		testmultidownload();
-	}
-
-	static void testmultidownload() {
 		new DownloadMulti("http://bcscdn.baidu.com/netdisk/BaiduYunGuanjia_5.3.4.exe",
-				"D:\\BaiduYunGuanjia_5.3.4.exe", 4, new HttpClinetEx(), new DownloadListener() {
-
-					@Override
-					public void onStart(long pos, long length) {
-
-					}
-
-					@Override
-					public void onProgress(long pos) {
-
-					}
-
-					@Override
-					public void onFinish(int err, String msg) {
-						System.out.println(err + "\n" + msg);
-					}
-
-					@Override
-					public void onConnect(int code) {
-
-					}
-				}).run();
+				"D:\\BaiduYunGuanjia_5.3.4.exe", 4, new HttpClinetEx(),
+				new DefaultDownloadListener()).run();
+//		new DownloadSingle("http://bcscdn.baidu.com/netdisk/BaiduYunGuanjia_5.3.4.exe",
+//				"D:\\BaiduYunGuanjia_5.3.4_single.exe", new HttpClinetEx(),
+//				new DefaultDownloadListener()).run();
 	}
 
+	static class DefaultDownloadListener implements DownloadListener {
+		long t1 = 0;
+
+		public DefaultDownloadListener() {
+			t1 = System.currentTimeMillis();
+		}
+
+		@Override
+		public void onStart(long pos, long length) {
+
+		}
+
+		@Override
+		public void onProgress(long pos) {
+
+		}
+
+		@Override
+		public void onFinish(int err, long size, String msg) {
+			System.out.println((System.currentTimeMillis() - t1) + "," + err + "\n" + msg);
+		}
+
+		@Override
+		public void onConnect(int code) {
+
+		}
+	};
 }
