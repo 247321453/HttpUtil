@@ -28,7 +28,7 @@ public class DownloadMulti implements Runnable {
 	long[][] infos;
 
 	int mErr = DownloadUtils.ERR_OTHER;
-	private static final byte[] lock={};
+	private static final byte[] lock = {};
 	String mErrmsg;
 
 	public DownloadMulti(String url, String file, int threads, HttpClinetEx client) {
@@ -126,7 +126,7 @@ public class DownloadMulti implements Runnable {
 		//有一个在下载都未完成
 		for (int i = 0; i < status.length; i++) {
 			if (status[i]) {
-			//	System.out.println("wait:" + i);
+				//	System.out.println("wait:" + i);
 				return false;
 			}
 		}
@@ -196,8 +196,9 @@ public class DownloadMulti implements Runnable {
 //					if (i >= 0) {
 //						download(tmpFile, i, b);
 //					}
+				} else {
+					updateBlock(filepath + ".cfg", index, infos[index]);
 				}
-				updateBlock(filepath + ".cfg", index, infos[index]);
 			}
 
 			@Override
