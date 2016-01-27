@@ -1,0 +1,22 @@
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+apply plugin: 'java'
+
+dependencies {
+}
+sourceSets {
+}
+sourceCompatibility = 1.7
+jar {
+    manifest {
+        attributes 'Main-Class': 'test.Main'
+    }
+}
+tasks.withType(GroovyCompile) {
+    groovyOptions.encoding = "MacRoman"
+}
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}

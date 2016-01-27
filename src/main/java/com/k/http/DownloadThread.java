@@ -1,5 +1,7 @@
 package com.k.http;
 
+import com.k.http.util.FileUtil;
+
 import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +10,6 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
-
-import com.k.http.util.FileUtil;
 
 public class DownloadThread extends Thread {
 
@@ -110,7 +110,7 @@ public class DownloadThread extends Thread {
 				return false;
 			}
 		}
-		long[] b = new long[2];
+		final long[] b = new long[2];
 		final int pos = mDownloadInfo.findblock(start, b);
 		if (pos >= 0) {
 			if (mDownloadInfo.isDownload(pos)) {
