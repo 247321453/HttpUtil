@@ -1,4 +1,4 @@
-package org.apache.http2;
+package com.k.http;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -6,11 +6,13 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NameValuePairEx implements Serializable{
+public class NameValuePairEx implements Serializable {
+	private static final String UTF_8 = "UTF-8";
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3284464313750147707L;
+
 	public NameValuePairEx(String name, String value) {
 		this.name = name;
 		this.value = value;
@@ -19,7 +21,7 @@ public class NameValuePairEx implements Serializable{
 	public String toUriString() {
 		String str = "";
 		try {
-			str = URLEncoder.encode(name, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
+			str = URLEncoder.encode(name, UTF_8) + "=" + URLEncoder.encode(value, UTF_8);
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			str = name + "=" + value;

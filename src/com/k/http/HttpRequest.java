@@ -1,13 +1,9 @@
-package org.apache.http2;
+package com.k.http;
 
 import java.io.Serializable;
-import java.net.Proxy;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.http2.utils.Base64;
-import org.apache.http2.utils.UriUtils;
 
 public class HttpRequest implements Serializable {
 	/**
@@ -27,20 +23,12 @@ public class HttpRequest implements Serializable {
 	String method = GET;
 	/** 是否读取 */
 	public boolean needContent = true;
-	/** 连接超时（毫秒）*/
+	/** 连接超时（毫秒） */
 	int timeout = 0;
-	/** 读超时（毫秒）*/
-	int timeout_read = 0;
 	/** 保存cookies */
 	public boolean savecookies = false;
 	/** 编码 */
 	String encoding = null;
-	/** 代理地址 */
-	String proxyHost;
-	/** 代理端口 */
-	int proxyPort;
-	/** 代理授权 */
-	String proxyToken;
 	/** 浏览器标识 */
 	String userAngent = null;
 	/** 是否允许跳转 */
@@ -55,20 +43,18 @@ public class HttpRequest implements Serializable {
 	}
 
 	public HttpRequest(String url) {
-		this(url, 0, 0);
+		this(url, DEF_READ_TIMEOUT);
 	}
-	public HttpRequest clone(){
-		HttpRequest request=new HttpRequest(url,timeout,timeout_read);
+
+	public HttpRequest clone() {
+		HttpRequest request = new HttpRequest(url, timeout);
 		request.setDatas(datas);
 		request.setMethod(method);
 		request.setNeedContent(needContent);
 		request.setNeedCookies(savecookies);
 		request.setEncoding(encoding);
-		request.proxyHost=proxyHost;
-		request.proxyPort=proxyPort;
-		request.proxyToken=proxyToken;
-		request.userAngent=userAngent;
-		request.redirects=redirects;
+		request.userAngent = userAngent;
+		request.redirects = redirects;
 		return request;
 	}
 
@@ -96,16 +82,16 @@ public class HttpRequest implements Serializable {
 		return url;
 	}
 
-	public HttpRequest(String url, int timeout, int timeout_read) {
+	public HttpRequest(String url, int timeout) {
 		super();
 		this.url = url;
 		this.timeout = timeout;
-		this.timeout_read = timeout_read;
 	}
 
 	public String getInitUrl() {
 		return this.url;
 	}
+
 	public HttpRequest setUrl(String url) {
 		this.url = url;
 		return this;
@@ -139,11 +125,6 @@ public class HttpRequest implements Serializable {
 		return this;
 	}
 
-	public HttpRequest setReadTimeout(int timeout_read) {
-		this.timeout_read = timeout_read;
-		return this;
-	}
-
 	public HttpRequest setNeedContent(boolean needContent) {
 		this.needContent = needContent;
 		return this;
@@ -151,13 +132,6 @@ public class HttpRequest implements Serializable {
 
 	public HttpRequest setNeedCookies(boolean savecookies) {
 		this.savecookies = savecookies;
-		return this;
-	}
-
-	public HttpRequest setProxy(String host, int port, String user, String pwd) {
-		this.proxyHost = host;
-		this.proxyPort = port;
-		this.proxyToken = "Basic " + Base64.getEncoder().encode((user + ":" + pwd).getBytes());
 		return this;
 	}
 
@@ -169,9 +143,5 @@ public class HttpRequest implements Serializable {
 
 		}
 		return this;
-	}
-
-	public Proxy getProxy() {
-		return UriUtils.getProxy(proxyHost, proxyPort);
 	}
 }

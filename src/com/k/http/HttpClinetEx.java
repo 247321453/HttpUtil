@@ -1,19 +1,18 @@
-package org.apache.http2;
+package com.k.http;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
-import java.net.Proxy;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.http2.utils.CookiesUtils;
+import com.k.http.util.CookiesUtils;
+import com.k.http.util.FileUtil;
 
 public class HttpClinetEx {
 	public static boolean Log = false;
@@ -40,34 +39,21 @@ public class HttpClinetEx {
 		return sInstance;
 	}
 
-	public HttpURLConnection connect(HttpRequest request)
-			throws IOException {
+	public HttpURLConnection connect(HttpRequest request) throws IOException {
 		return connect(request, null);
 	}
 
-	public HttpURLConnection connect(HttpRequest request, Map<String, String> args)
-			throws IOException {
+	public HttpURLConnection connect(HttpRequest request, Map<String, String> args) throws IOException {
 		if (request == null) {
 			return null;
 		}
 		String url = request.getUrl();
 		log("url:" + url);
 		URL _url = new URL(url);
-		HttpURLConnection url_con;
-		Proxy proxy = request.getProxy();
-		if (proxy == null) {
-			url_con = (HttpURLConnection) _url.openConnection();
-		} else {
-			url_con = (HttpURLConnection) _url.openConnection(proxy);
-			if (request.proxyToken != null) {
-				url_con.setRequestProperty("Proxy-Authorization", request.proxyToken);
-			}
-		}
+		HttpURLConnection url_con = (HttpURLConnection) _url.openConnection();
 		if (request.timeout > 0) {
 			url_con.setConnectTimeout(request.timeout);
-		}
-		if (request.timeout_read > 0) {
-			url_con.setReadTimeout(request.timeout_read);
+			url_con.setReadTimeout(request.timeout);
 		}
 		if (request.userAngent != null) {
 			log(request.userAngent);
@@ -97,11 +83,14 @@ public class HttpClinetEx {
 			url_con.setRequestMethod(HttpRequest.POST);
 			url_con.setDoOutput(true);
 			url_con.getOutputStream().write(NameValuePairEx.toString(request.datas).getBytes());
-		} else {
+		} else
+
+		{
 			url_con.setRequestMethod(HttpRequest.GET);
 		}
-		//	url_con.connect();
+		// url_con.connect();
 		return url_con;
+
 	}
 
 	public byte[] readHttpContent(HttpRequest request) {
@@ -110,7 +99,7 @@ public class HttpClinetEx {
 		if (read(request, outputStream)) {
 			result = outputStream.toByteArray();
 		}
-		close(outputStream);
+		FileUtil.close(outputStream);
 		return result;
 	}
 
@@ -149,8 +138,8 @@ public class HttpClinetEx {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			close(inputStream);
-			close(url_con);
+			FileUtil.close(inputStream);
+			FileUtil.close(url_con);
 		}
 		return connect;
 	}
@@ -173,63 +162,46 @@ public class HttpClinetEx {
 	}
 
 	public HttpRequest getHttpRequestByDefault(String url) {
-		return getHttpRequestByDefault(url, HttpRequest.DEF_TIMEOUT, HttpRequest.DEF_READ_TIMEOUT);
+		return getHttpRequestByDefault(url, HttpRequest.DEF_TIMEOUT);
 	}
 
 	/***
 	 * 获取默认
+	 * 
 	 * @param url
 	 * @param timeout
 	 * @param read_timtout
 	 * @return
 	 */
-	public HttpRequest getHttpRequestByDefault(String url, int timeout, int read_timtout) {
+	public HttpRequest getHttpRequestByDefault(String url, int timeout) {
 		if (this.DefaultHttpRequest != null) {
-			return DefaultHttpRequest.clone().setUrl(url).setTimeout(timeout)
-					.setReadTimeout(read_timtout);
+			return DefaultHttpRequest.clone().setUrl(url).setTimeout(timeout);
 		}
-		HttpRequest request = new HttpRequest(url, timeout, read_timtout);
+		HttpRequest request = new HttpRequest(url, timeout);
 		request.setMethod(HttpRequest.GET);
 		request.setNeedContent(true);
 		return request;
 	}
 
 	public static String getHttpContent(String url) {
-		return getHttpContent(url, 0, 0);
+		return getHttpContent(url, 0);
 	}
 
-	public static String getHttpContent(String url, int timeout, int read_timtout) {
-		HttpRequest request = getInstance().getHttpRequestByDefault(url, timeout, read_timtout);
+	public static String getHttpContent(String url, int timeout) {
+		HttpRequest request = getInstance().getHttpRequestByDefault(url, timeout);
 		return getInstance().openHttpContent(request);
 	}
 
 	public static String postHttpContent(String url, List<NameValuePairEx> datas) {
-		return postHttpContent(url, datas, 0, 0);
+		return postHttpContent(url, datas, 0);
 	}
 
-	public static String postHttpContent(String url, List<NameValuePairEx> datas, int timeout,
-			int read_timtout) {
-		HttpRequest request = getInstance().getHttpRequestByDefault(url, timeout, read_timtout);
+	public static String postHttpContent(String url, List<NameValuePairEx> datas, int timeout) {
+		HttpRequest request = getInstance().getHttpRequestByDefault(url, timeout);
 		request.setMethod(HttpRequest.POST);
 		request.setDatas(datas);
 		request.setNeedContent(true);
 		return getInstance().openHttpContent(request);
 	}
 
-	public static void close(HttpURLConnection conn) {
-		if (conn != null) {
-			conn.disconnect();
-		}
-	}
-
-	public static void close(Closeable close) {
-		if (close == null) {
-			return;
-		}
-		try {
-			close.close();
-		} catch (Exception e) {
-
-		}
-	}
 }

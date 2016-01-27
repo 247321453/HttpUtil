@@ -1,39 +1,24 @@
 package test;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.http2.DownloadListener;
-import org.apache.http2.DownloadMulti;
-import org.apache.http2.HttpClinetEx;
+import com.k.http.DownloadError;
+import com.k.http.DownloadListener;
+import com.k.http.DownloadManager;
 
 public class Main {
 
-	static void test() {
-		String teString = "            <tr>"
-				+ "                <td>112.193.142.236</td>"
-				+ "                <td>8090</td>"
-				+ "                <td>高匿名</td>";
-		Pattern pattern = Pattern.compile("<tr>\\s+<td>([0-9|.]+?)</td>\\s+<td>([0-9]+?)</td>");
-		// System.out.println(html);
-		Matcher m = pattern.matcher(teString);
-		if (m.find()) {
-			System.out.println(m.group(1) + ":" + m.group(2));
-		} else {
-			System.out.println("fail");
-		}
-	}
-
 	public static void main(String[] args) {
-		System.setProperty("http.agent", "Mozilla/5.0 (Linux; "
-				+ "Android 4.2.2; Nexus 7 Build/JRO03D) AppleWebKit/535.19 (KHTML, like Gecko) "
-				+ "Chrome/18.0.1025.166 Safari/535.19");
-		new DownloadMulti("http://bcscdn.baidu.com/netdisk/BaiduYunGuanjia_5.3.4.exe",
-				"D:\\BaiduYunGuanjia_5.3.4.exe", 4, new HttpClinetEx(),
-				new DefaultDownloadListener()).run();
-//		new DownloadSingle("http://bcscdn.baidu.com/netdisk/BaiduYunGuanjia_5.3.4.exe",
-//				"D:\\BaiduYunGuanjia_5.3.4_single.exe", new HttpClinetEx(),
-//				new DefaultDownloadListener()).run();
+		System.setProperty("http.agent",
+				"Mozilla/5.0 (Linux; " + "Android 4.2.2; Nexus 7 Build/JRO03D) AppleWebKit/535.19 (KHTML, like Gecko) "
+						+ "Chrome/18.0.1025.166 Safari/535.19");
+		DownloadManager.init(8, 512 * 1024);
+		DownloadManager.getInstance().download(
+				"https://github.com/247321453/YgoServer/raw/master/lib/System.Data.SQLite.dll", 
+				"D:\\a.dll", 
+				new DefaultDownloadListener());
+		// new
+		// DownloadSingle("http://bcscdn.baidu.com/netdisk/BaiduYunGuanjia_5.3.4.exe",
+		// "D:\\BaiduYunGuanjia_5.3.4_single.exe", new HttpClinetEx(),
+		// new DefaultDownloadListener()).run();
 	}
 
 	static class DefaultDownloadListener implements DownloadListener {
@@ -44,23 +29,17 @@ public class Main {
 		}
 
 		@Override
-		public void onStart(long pos, long length) {
-
+		public void onStart(String url, String file) {
+			
 		}
 
 		@Override
-		public void onProgress(long pos) {
-
+		public void onProgress(String url, String file, long pos, long total, boolean writed) {
 		}
 
 		@Override
-		public void onFinish(int err, long size, String msg) {
-			System.out.println((System.currentTimeMillis() - t1) + "," + err + "\n" + msg);
-		}
-
-		@Override
-		public void onConnect(int code) {
-
+		public void onFinish(String url, String file, DownloadError err) {
+			System.out.println((System.currentTimeMillis() - t1) + "," + err + "：" + err);			
 		}
 	};
 }
