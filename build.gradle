@@ -12,11 +12,11 @@ apply plugin: 'java'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-def libName = 'httputils'
+def libName = 'HttpUtils'
 def siteUrl = 'https://github.com/247321453/HttpUtil'
 def gitUrl = 'https://github.com/247321453/HttpUtil.git'
-group = 'org.k'
-version = 1.0
+group = 'com.github.247321453'
+version = 1.1
 sourceCompatibility = 1.7
 jar {
     manifest {
