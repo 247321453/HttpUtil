@@ -1,5 +1,8 @@
 package com.k.http;
 
+import com.k.http.util.ByteUtils;
+import com.k.http.util.IOUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -9,9 +12,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
-import com.k.http.util.ByteUtils;
-import com.k.http.util.FileUtil;
-
+/***
+ * 记录下载信息
+ * 保存文件名.cfg
+ */
 public class DownloadInfo {
 
 	private static final int HEAD_LENGTH = 3 * 8;
@@ -25,12 +29,17 @@ public class DownloadInfo {
 		this.cfgfile = cfgfile;
 		this.cache_size = cache_size;
 	}
-
+    //配置文件
 	private String cfgfile;
+    //需要下载的总长度
 	private volatile long length;
+    //每块的长度，如果为0，则是1块
 	private volatile long cache_size;
+    //共分多少块
 	private volatile int block_count;
+    //每块下载信息
 	private volatile long[][] blocks;
+    //正在下载的状态
 	private volatile boolean[] status;
 
 	public int getBlockCount() {
@@ -69,7 +78,6 @@ public class DownloadInfo {
 	/***
 	 * 查找下一块，如果为null则判断为下载完成
 	 * 
-	 * @param blocks
 	 * @param pos
 	 * @return
 	 */
@@ -119,7 +127,7 @@ public class DownloadInfo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			FileUtil.close(outputStream);
+			IOUtil.close(outputStream);
 		}
 	}
 
@@ -135,7 +143,7 @@ public class DownloadInfo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			FileUtil.close(outputStream);
+			IOUtil.close(outputStream);
 		}
 	}
 
@@ -170,13 +178,13 @@ public class DownloadInfo {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			FileUtil.close(inputStream);
+			IOUtil.close(inputStream);
 		}
 		return ok;
 	}
 
 	public boolean createOrRead() {
-		if (FileUtil.exists(cfgfile)) {
+		if (IOUtil.exists(cfgfile)) {
 			if (read()) {
 				return true;
 			}
@@ -186,7 +194,7 @@ public class DownloadInfo {
 	}
 
 	public void createNew() {
-		FileUtil.delete(new File(cfgfile));
+		IOUtil.delete(new File(cfgfile));
 		// 第一个长度，根据长度可以获取
 		if (cache_size <= 0) {
 			block_count = 1;
@@ -226,7 +234,7 @@ public class DownloadInfo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			FileUtil.close(outputStream);
+			IOUtil.close(outputStream);
 		}
 	}
 }

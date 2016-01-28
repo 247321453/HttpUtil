@@ -4,8 +4,7 @@ public interface DownloadListener {
 	void onStart(String url, String file);
 
 	/**
-	 * @param p
-	 *            0-1
+	 * @param pos
 	 */
 	void onProgress(String url, String file, long pos, long total, boolean writed);
 

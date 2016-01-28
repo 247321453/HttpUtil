@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.net.HttpURLConnection;
 
-public class FileUtil {
+public class IOUtil {
 
 	public static File getFile(String path) {
 		File file = null;

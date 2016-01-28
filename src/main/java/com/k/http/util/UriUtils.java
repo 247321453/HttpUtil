@@ -1,27 +1,16 @@
 package com.k.http.util;
 
+import com.k.http.HttpClinetEx;
+import com.k.http.HttpRequest;
+
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.k.http.HttpClinetEx;
-import com.k.http.HttpRequest;
-
 public class UriUtils {
 	private static final String UTF_8 = "UTF-8";
-	public static String getRealUrl(String skipurl) {
-		String newurl = null;
-		String url = skipurl;
-		boolean isSame = false;
-		while (!isSame) {
-			newurl = getLocationUrl(url);
-			isSame = url.equals(newurl);
-			url = newurl;
-		}
-		return newurl;
-	}
 
 	public static String getLocationUrl(String httpurl) {
 		HttpRequest request = new HttpRequest(httpurl, 60 * 1000);
@@ -31,7 +20,7 @@ public class UriUtils {
 		String newurl = httpurl;
 		HttpURLConnection connection = null;
 		try {
-			connection = HttpClinetEx.getInstance().connect(request);
+			connection = HttpClinetEx.getInstance().connect(request, null);
 			int code = connection.getResponseCode();
 			if (code == HttpURLConnection.HTTP_MOVED_PERM
 					|| code == HttpURLConnection.HTTP_MOVED_TEMP) {
@@ -42,11 +31,25 @@ public class UriUtils {
 		} catch (Exception e) {
 
 		} finally {
-			FileUtil.close(connection);
+			IOUtil.close(connection);
 		}
 		return newurl;
 	}
-
+    public static String toString(Map<String, String> list) {
+        if (list == null) {
+            return "";
+        }
+        StringBuffer sb = new StringBuffer();
+        for (Map.Entry<String, String> e : list.entrySet()) {
+            sb.append(e.getKey() + "=" + encode(e.getValue()));
+            sb.append("&");
+        }
+        String args = sb.toString();
+        if (args.endsWith("&")) {
+            args = args.substring(0, args.length() - 1);
+        }
+        return args;
+    }
 	public static Map<String, String> query(String uri) {
 		Map<String, String> args = new HashMap<String, String>();
 		if (uri != null) {

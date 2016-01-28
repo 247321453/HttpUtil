@@ -1,9 +1,11 @@
 package com.k.http;
 
+import com.k.http.util.UriUtils;
+
 import java.io.Serializable;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpRequest implements Serializable {
 	/**
@@ -13,12 +15,10 @@ public class HttpRequest implements Serializable {
 
 	public static final String GET = "GET";
 	public static final String POST = "POST";
-	static final String DEF_ENCODING = "utf-8";
 	static final int DEF_TIMEOUT = 15 * 1000;
-	static final int DEF_READ_TIMEOUT = 15 * 1000;
 	private String url;
 	/** 参数 */
-	List<NameValuePairEx> datas;
+	Map<String, String> datas;
 	/** 方法 */
 	String method = GET;
 	/** 是否读取 */
@@ -43,7 +43,7 @@ public class HttpRequest implements Serializable {
 	}
 
 	public HttpRequest(String url) {
-		this(url, DEF_READ_TIMEOUT);
+		this(url, DEF_TIMEOUT);
 	}
 
 	public HttpRequest clone() {
@@ -70,7 +70,7 @@ public class HttpRequest implements Serializable {
 
 	public String getUrl() {
 		if (url != null) {
-			String data = NameValuePairEx.toString(datas);
+			String data = UriUtils.toString(datas);
 			if (isGet() && data != null && data.length() > 0) {
 				if (url.contains("?")) {
 					return url + data;
@@ -102,16 +102,16 @@ public class HttpRequest implements Serializable {
 		return this;
 	}
 
-	public HttpRequest setDatas(List<NameValuePairEx> list) {
+	public HttpRequest setDatas(Map<String, String> list) {
 		this.datas = list;
 		return this;
 	}
 
-	public HttpRequest addData(NameValuePairEx arg) {
+	public HttpRequest addData(String key, String value) {
 		if (this.datas == null) {
-			this.datas = new ArrayList<NameValuePairEx>();
+			this.datas = new HashMap<>();
 		}
-		this.datas.add(arg);
+		this.datas.put(key, value);
 		return this;
 	}
 
