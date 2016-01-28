@@ -297,7 +297,7 @@ public class DownloadInfo {
                     blocks[i][0] = i * cache_size;
                     blocks[i][1] = (i + 1) * cache_size;
                 }
-                // System.out.println("write:"+i+"="+Arrays.toString(bs[i]));
+                // System.out.println("write:"+i+"="+Arrays.toQueryString(bs[i]));
                 outputStream.write(ByteUtils.longToBytes(blocks[i][0]), 0, 8);
                 outputStream.write(ByteUtils.longToBytes(blocks[i][1]), 0, 8);
             }

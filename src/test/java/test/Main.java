@@ -16,7 +16,7 @@ public class Main {
 //				"https://github.com/247321453/YgoServer/raw/master/lib/System.Data.SQLite.dll",
 //				"D:\\a.dll",
 //				new DefaultDownloadListener());
-        System.out.print(UriUtils.removeQuery("http://127.0.0.1/index.php?a=b"));
+        System.out.print(UriUtils.removeQuerys("http://127.0.0.1/index.php?a=b"));
 		// new
 		// DownloadSingle("http://bcscdn.baidu.com/netdisk/BaiduYunGuanjia_5.3.4.exe",
 		// "D:\\BaiduYunGuanjia_5.3.4_single.exe", new HttpClinetEx(),

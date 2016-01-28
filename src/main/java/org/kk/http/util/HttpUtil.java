@@ -13,6 +13,36 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpUtil {
+    public static final String HEADER_AUTHORIZATION = "Authorization";
+    public static final String HEADER_ACCEPT = "Accept";
+    public static final String HEADER_ACCEPT_CHARSET = "Accept-Charset";
+    public static final String HEADER_ACCEPT_ENCODING = "Accept-Encoding";
+    public static final String HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+    public static final String HEADER_CONNECTION = "Connection";
+    public static final String HEADER_COOKIE = "Cookie";
+    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    public static final String HEADER_CONTENT_LENGTH = "Content-Length";
+    public static final String HEADER_CONTENT_MD5 = "Content-MD5";
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HEADER_DATE = "Date";
+    public static final String HEADER_EXPECT = "Expect";
+    public static final String HEADER_FROM = "From";
+    public static final String HEADER_IF_MATCH = "If-Match";
+    public static final String HEADER_IF_MODIFIED_SINCE = "If-Modified-Since";
+    public static final String HEADER_IF_NONE_MATCH = "If-None-Match";
+    public static final String HEADER_IF_RANGE = "If-Range";
+    public static final String HEADER_IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
+    public static final String HEADER_MAX_FORWARDS = "Max-Forwards";
+    public static final String HEADER_PRAGMA = "Pragma";
+    public static final String HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization";
+    public static final String HEADER_RANGE = "Range";
+    public static final String HEADER_REFERER = "Referer";
+    public static final String HEADER_TARNSFER_ENCODING = "TE";
+    public static final String HEADER_UPGRADE = "Upgrade";
+    public static final String HEADER_USER_AGENT = "User-Agent";
+    public static final String HEADER_VIA = "Via";
+    public static final String HEADER_WARNING = "Warning";
+    public static final String HEADER_LOCATION = "Location";
 
     /**
      * @param request   请求
@@ -83,6 +113,22 @@ public class HttpUtil {
         return result;
     }
 
+    public static boolean isStatusOK(int code) {
+        return (code >= 200) && (code <= 299);
+    }
+
+    public static boolean isStatusRedirect(int code) {
+        return (code >= 300) && (code <= 399);
+    }
+
+    public static boolean isStatusClientError(int code) {
+        return (code >= 400) && (code <= 499);
+    }
+
+    public static boolean isStatusServerError(int code) {
+        return (code >= 500) && (code <= 599);
+    }
+
     private boolean read(HttpRequest request, Map<String, String> propertys, OutputStream outputStream) {
         if (request == null) {
             return false;
@@ -93,7 +139,7 @@ public class HttpUtil {
         try {
             url_con = connect(request, propertys);
             int code = url_con.getResponseCode();
-            if (code == HttpURLConnection.HTTP_OK || code == HttpURLConnection.HTTP_PARTIAL) {
+            if (isStatusOK(code)) {
                 if (request.isSavecookies()) {
                     Map<String, List<String>> headers = url_con.getHeaderFields();
                     CookiesUtils.updateCookies(request.getInitUrl(), headers);

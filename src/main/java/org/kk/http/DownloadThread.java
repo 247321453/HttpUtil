@@ -2,8 +2,8 @@ package org.kk.http;
 
 import org.kk.http.bean.DownloadError;
 import org.kk.http.bean.DownloadInfo;
-import org.kk.http.util.HttpUtil;
 import org.kk.http.bean.HttpRequest;
+import org.kk.http.util.HttpUtil;
 import org.kk.http.util.IOUtil;
 
 import java.io.EOFException;
@@ -170,8 +170,8 @@ public class DownloadThread extends Thread {
         request.setCanRedirects(false);
         request.setDefaultAngent();
         Map<String, String> datas = new HashMap<>();
-        datas.put("Range", "bytes=" + start + "-" + total);
-        datas.put("Connection", "Keep - Alive");
+        datas.put(HttpUtil.HEADER_RANGE, "bytes=" + start + "-" + total);
+        datas.put(HttpUtil.HEADER_CONNECTION, "Keep - Alive");
         HttpURLConnection httpURLConnection = null;
         RandomAccessFile output = null;
         InputStream input = null;
@@ -262,7 +262,7 @@ public class DownloadThread extends Thread {
         request.setDefaultAngent();
         HttpURLConnection connection = null;
         Map<String, String> datas = new HashMap<>();
-        datas.put("Range", "bytes=" + 1 + "-");
+        datas.put(HttpUtil.HEADER_RANGE, "bytes=" + 1 + "-");
         try {
             connection = HttpUtil.connect(request, datas);
             int code = connection.getResponseCode();

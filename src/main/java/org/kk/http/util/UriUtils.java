@@ -25,9 +25,8 @@ public class UriUtils {
         try {
             connection = HttpUtil.connect(request, null);
             int code = connection.getResponseCode();
-            if (code == HttpURLConnection.HTTP_MOVED_PERM
-                    || code == HttpURLConnection.HTTP_MOVED_TEMP) {
-                newurl = connection.getHeaderField("Location");
+            if (HttpUtil.isStatusRedirect(code)) {
+                newurl = connection.getHeaderField(HttpUtil.HEADER_LOCATION);
             } else {
             }
         } catch (Exception e) {
@@ -44,7 +43,7 @@ public class UriUtils {
      * @param list 数据
      * @return query字符串，不带?
      */
-    public static String toString(Map<String, String> list) {
+    public static String toQueryString(Map<String, String> list) {
         if (list == null) {
             return "";
         }
@@ -66,7 +65,7 @@ public class UriUtils {
      * @param uri 链接
      * @return 数据集合
      */
-    public static Map<String, String> query(String uri) {
+    public static Map<String, String> getQuerys(String uri) {
         Map<String, String> args = new HashMap<String, String>();
         if (uri != null) {
             int index = uri.indexOf('?');
@@ -85,11 +84,10 @@ public class UriUtils {
     }
 
     /**
-     *
      * @param uri 网址
      * @return 移除?以及后面的数据
      */
-    public static String removeQuery(String uri) {
+    public static String removeQuerys(String uri) {
         if (uri != null) {
             int index = uri.indexOf('?');
             if (index > 0 && index < uri.length()) {
@@ -101,6 +99,7 @@ public class UriUtils {
 
     /***
      * url解码
+     *
      * @param str 字符串
      * @return 解码后字符串
      */
@@ -116,6 +115,7 @@ public class UriUtils {
 
     /***
      * url加密
+     *
      * @param str 字符串
      * @return 加密后
      */

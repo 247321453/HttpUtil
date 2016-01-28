@@ -63,7 +63,7 @@ public class HttpRequest implements Serializable {
     }
 
     public String getDataString() {
-        return UriUtils.toString(datas);
+        return UriUtils.toQueryString(datas);
     }
 
     public boolean isSavecookies() {
@@ -98,7 +98,7 @@ public class HttpRequest implements Serializable {
 
     public String getUrl() {
         if (url != null) {
-            String data = UriUtils.toString(datas);
+            String data = UriUtils.toQueryString(datas);
             if (isGet() && data != null && data.length() > 0) {
                 if (url.contains("?")) {
                     return url + data;
