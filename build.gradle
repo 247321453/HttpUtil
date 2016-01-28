@@ -1,13 +1,22 @@
-repositories {
-    mavenLocal()
-    mavenCentral()
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.3'
+    }
 }
 apply plugin: 'java'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 
-dependencies {
-}
-sourceSets {
-}
+def libName = 'httputils'
+def siteUrl = 'https://github.com/247321453/HttpUtil'
+def gitUrl = 'https://github.com/247321453/HttpUtil.git'
+group = 'org.k'
+version = 1.0
 sourceCompatibility = 1.7
 jar {
     manifest {
@@ -19,4 +28,63 @@ tasks.withType(GroovyCompile) {
 }
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+}
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'jar'
+                name libName
+                description 'java download by use multi threads'
+                // #CONFIG# // project title
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id '247321453'
+                        // #CONFIG# // your user id (you can write your nickname)
+                        name 'keyoyu'
+                        // #CONFIG# // your user name
+                        email '247321453@qq.com'
+                        // #CONFIG# // your email
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+artifacts {
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = libName
+        // #CONFIG# project name in jcenter
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
 }

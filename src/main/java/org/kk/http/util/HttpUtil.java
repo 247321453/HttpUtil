@@ -1,8 +1,6 @@
-package com.k.http;
+package org.kk.http.util;
 
-import com.k.http.util.CookiesUtils;
-import com.k.http.util.IOUtil;
-import com.k.http.util.UriUtils;
+import org.kk.http.bean.HttpRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,52 +12,37 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-public class HttpClinetEx {
-    public static boolean Log = false;
-    static HttpClinetEx sInstance;
+public class HttpUtil {
 
-    public static void log(String str) {
-        if (Log)
-            System.out.println(str);
-    }
-
-    public HttpClinetEx() {
-        CookiesUtils.init();
-    }
-
-    public static HttpClinetEx getInstance() {
-        if (sInstance == null) {
-            sInstance = new HttpClinetEx();
-        }
-        return sInstance;
-    }
-
-    public HttpURLConnection connect(HttpRequest request, Map<String, String> propertys) throws IOException {
+    /**
+     * @param request   请求
+     * @param propertys propertys
+     * @return 连接
+     * @throws IOException 异常
+     */
+    public static HttpURLConnection connect(HttpRequest request, Map<String, String> propertys) throws IOException {
         if (request == null) {
             return null;
         }
         String url = request.getUrl();
-        log("url:" + url);
         URL _url = new URL(url);
         HttpURLConnection url_con = (HttpURLConnection) _url.openConnection();
-        if (request.timeout > 0) {
-            url_con.setConnectTimeout(request.timeout);
-            url_con.setReadTimeout(request.timeout);
+        if (request.getTimeout() > 0) {
+            url_con.setConnectTimeout(request.getTimeout());
+            url_con.setReadTimeout(request.getTimeout());
         }
-        if (request.userAngent != null) {
-            log(request.userAngent);
-            url_con.setRequestProperty("User-agent", request.userAngent);
+        if (request.getUserAngent() != null) {
+            url_con.setRequestProperty("User-agent", request.getUserAngent());
         }
-        if (request.encoding != null) {
-            url_con.setRequestProperty("Accept-Charset", request.encoding);
+        if (request.getEncoding() != null) {
+            url_con.setRequestProperty("Accept-Charset", request.getEncoding());
         }
-        if (request.redirects != null) {
-            url_con.setInstanceFollowRedirects(request.redirects);
+        if (request.getRedirects() != null) {
+            url_con.setInstanceFollowRedirects(request.getRedirects());
         }
         // 设置session
-        if (request.savecookies) {
+        if (request.isSavecookies()) {
             List<HttpCookie> cookies = CookiesUtils.getCookies(url);
-            log("cookies:" + cookies.toString());
             if (cookies.size() > 0) {
                 url_con.setRequestProperty("Cookie", cookies.toString());
             }
@@ -73,17 +56,23 @@ public class HttpClinetEx {
             // 输入参数
             url_con.setRequestMethod(HttpRequest.POST);
             url_con.setDoOutput(true);
-            url_con.getOutputStream().write(UriUtils.toString(request.datas).getBytes());
-        } else
-
-        {
+            String str = request.getDataString();
+            if (str != null)
+                url_con.getOutputStream().write(str.getBytes());
+        } else {
             url_con.setRequestMethod(HttpRequest.GET);
         }
-        // url_con.connect();
         return url_con;
 
     }
 
+    /***
+     * 读取网址的内容
+     *
+     * @param request   请求参数
+     * @param propertys propertys
+     * @return 内容
+     */
     public byte[] readHttpContent(HttpRequest request, Map<String, String> propertys) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] result = null;
@@ -105,9 +94,8 @@ public class HttpClinetEx {
             url_con = connect(request, propertys);
             int code = url_con.getResponseCode();
             if (code == HttpURLConnection.HTTP_OK || code == HttpURLConnection.HTTP_PARTIAL) {
-                if (request.savecookies) {
+                if (request.isSavecookies()) {
                     Map<String, List<String>> headers = url_con.getHeaderFields();
-                    log("headers:" + headers);
                     CookiesUtils.updateCookies(request.getInitUrl(), headers);
                 }
                 if (request.needContent) {
@@ -119,10 +107,8 @@ public class HttpClinetEx {
                     }
                 }
             } else if (code < HttpURLConnection.HTTP_OK) {
-                log("other:" + code);
             } else {
                 connect = false;
-                log("err:" + code);
             }
         } catch (IOException e) {
             e.printStackTrace();

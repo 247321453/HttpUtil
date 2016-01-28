@@ -1,4 +1,6 @@
-package com.k.http;
+package org.kk.http;
+
+import org.kk.http.bean.DownloadError;
 
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
@@ -16,11 +18,20 @@ public class DownloadManager {
         mPool = Executors.newFixedThreadPool(Math.min(num, MAX_POOL));
     }
 
+    /***
+     *
+     * @param num 线程数
+     * @param cache_size 缓存大小
+     */
     public static void init(int num, int cache_size) {
         MAX_POOL = num;
         Cache_size = cache_size;
     }
 
+    /**
+     *
+     * @return 下载管理器
+     */
     public static DownloadManager getInstance() {
         if (sDownloadManager == null) {
             sDownloadManager = new DownloadManager(MAX_POOL);
@@ -28,12 +39,21 @@ public class DownloadManager {
         return sDownloadManager;
     }
 
+    /***
+     * 下载线程
+     * @param filepath 保存文件路径
+     * @return 线程
+     */
     public DownloadThread getDownloadThread(String filepath) {
         if (filepath == null)
             return null;
         return sStatus.get(filepath);
     }
 
+    /***
+     * 停止下载
+     * @param filepath 保存文件路径
+     */
     public void stopDownload(String filepath) {
         if (filepath == null)
             return;
@@ -44,6 +64,13 @@ public class DownloadManager {
         sStatus.remove(filepath);
     }
 
+    /**
+     *下载
+     * @param url 链接
+     * @param file 保存文件路径
+     * @param listener 监听
+     * @return 是否能下载
+     */
     public boolean download(String url, String file, DownloadListener listener) {
         if (url == null || file == null)
             return false;
@@ -59,6 +86,9 @@ public class DownloadManager {
         return true;
     }
 
+    /***
+     * 关闭
+     */
     public void close() {
         mPool.shutdown();
     }

@@ -1,4 +1,4 @@
-package com.k.http;
+package org.kk.http.bean;
 
 /**
  * Created by Administrator on 2016/1/26.

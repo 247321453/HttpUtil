@@ -1,6 +1,10 @@
-package com.k.http;
+package org.kk.http;
 
-import com.k.http.util.IOUtil;
+import org.kk.http.bean.DownloadError;
+import org.kk.http.bean.DownloadInfo;
+import org.kk.http.util.HttpUtil;
+import org.kk.http.bean.HttpRequest;
+import org.kk.http.util.IOUtil;
 
 import java.io.EOFException;
 import java.io.File;
@@ -61,7 +65,9 @@ public class DownloadThread extends Thread {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-
+        if(listener!=null){
+            listener.onStart(mUrl, mFile);
+        }
         boolean read = mDownloadInfo.createOrRead();
         System.out.println("pre download by read?" + read + " " + mDownloadInfo);
         // 需要下载的长度
@@ -140,7 +146,7 @@ public class DownloadThread extends Thread {
 
     private boolean isCompleted() {
         // 有一个在下载都未完成
-        if (!mDownloadInfo.isOk()) {
+        if (!mDownloadInfo.isCompleted()) {
             return false;
         }
         System.out.println("is completed.");
@@ -171,7 +177,7 @@ public class DownloadThread extends Thread {
         InputStream input = null;
         try {
             // 断点续传测试
-            httpURLConnection = HttpClinetEx.getInstance().connect(request, datas);
+            httpURLConnection = HttpUtil.connect(request, datas);
             int responseCode = httpURLConnection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
                 // 支持断点续传
@@ -258,7 +264,7 @@ public class DownloadThread extends Thread {
         Map<String, String> datas = new HashMap<>();
         datas.put("Range", "bytes=" + 1 + "-");
         try {
-            connection = HttpClinetEx.getInstance().connect(request, datas);
+            connection = HttpUtil.connect(request, datas);
             int code = connection.getResponseCode();
             length = connection.getContentLengthLong();
             if (code == HttpURLConnection.HTTP_PARTIAL) {
