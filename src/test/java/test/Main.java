@@ -1,8 +1,7 @@
 package test;
 
-import org.kk.http.bean.DownloadError;
 import org.kk.http.DownloadListener;
-import org.kk.http.DownloadManager;
+import org.kk.http.bean.DownloadError;
 import org.kk.http.util.UriUtils;
 
 public class Main {
@@ -11,7 +10,7 @@ public class Main {
 		System.setProperty("http.agent",
 				"Mozilla/5.0 (Linux; " + "Android 4.2.2; Nexus 7 Build/JRO03D) AppleWebKit/535.19 (KHTML, like Gecko) "
 						+ "Chrome/18.0.1025.166 Safari/535.19");
-		DownloadManager.init(8, 512 * 1024);
+//		DownloadManager.init(8, 512 * 1024);
 //		DownloadManager.getInstance().download(
 //				"https://github.com/247321453/YgoServer/raw/master/lib/System.Data.SQLite.dll",
 //				"D:\\a.dll",
@@ -30,18 +29,19 @@ public class Main {
 			t1 = System.currentTimeMillis();
 		}
 
-		@Override
-		public void onStart(String url, String file) {
-			
-		}
+        @Override
+        public void onStart(float pos, long length) {
 
-		@Override
-		public void onProgress(String url, String file, long pos, long total, boolean writed) {
-		}
+        }
 
-		@Override
-		public void onFinish(String url, String file, DownloadError err) {
-			System.out.println((System.currentTimeMillis() - t1) + "," + err + "：" + err);			
-		}
-	};
+        @Override
+        public void onProgress(float progress) {
+
+        }
+
+        @Override
+        public void onFinish(DownloadError err) {
+
+        }
+    };
 }

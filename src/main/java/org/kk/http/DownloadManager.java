@@ -2,10 +2,11 @@ package org.kk.http;
 
 import org.kk.http.bean.DownloadError;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class DownloadManager {
     ExecutorService mPool;
@@ -16,9 +17,9 @@ public class DownloadManager {
     final static HashMap<String, DownloadThread> sStatus = new HashMap<String, DownloadThread>();
 
     public DownloadManager(int num, int cache_size) {
-        MAX_POOL = num;
+        MAX_POOL = Math.max(1, num);
         Cache_size = cache_size;
-        mPool = Executors.newFixedThreadPool(MAX_POOL);
+        mPool = new ThreadPoolExecutor(num, num * 2, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     }
 
     /**
@@ -66,33 +67,26 @@ public class DownloadManager {
      * @param listener 监听
      * @return 是否能下载
      */
-    public boolean download(String url, String file, DownloadListener listener) {
-        if (url == null || file == null)
-            return false;
+    public DownloadThread download(String url, String file, DownloadListener listener) {
+        if (url == null || file == null || mPool.isShutdown())
+            return null;
         //变量
         DownloadThread thread = sStatus.get(file);
         if (thread != null) {
             thread.addListener(listener);
-            return false;
+            return thread;
         }
         thread = new DownloadThread(mPool, url, MAX_POOL / 2, file, Cache_size,
                 new MultiDownloadListener(file, listener));
         sStatus.put(file, thread);
-        mPool.execute(thread);
-        return true;
+        mPool.submit(thread);
+        return thread;
     }
 
     /***
      * 关闭
      */
     public void close() {
-        int count = sStatus.size();
-        Collection<DownloadThread> threads = sStatus.values();
-        for (DownloadThread thread : threads) {
-            if (thread != null && thread.isDownloading()) {
-                thread.interrupt();
-            }
-        }
         mPool.shutdown();
     }
 

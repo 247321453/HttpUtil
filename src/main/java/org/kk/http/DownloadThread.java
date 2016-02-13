@@ -66,10 +66,13 @@ public class DownloadThread extends Thread {
         return isDownloading;
     }
 
-    public long getProgress() {
-        return tmpFile.length();
+    public long getCompletedSize() {
+        return mDownloadInfo.getCompletedSize();
     }
 
+    public float getProgress() {
+        return mDownloadInfo.getProgress();
+    }
     @Override
     public void run() {
         super.run();

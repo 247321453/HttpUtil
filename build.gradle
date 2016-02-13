@@ -16,7 +16,7 @@ def libName = 'HttpUtils'
 def siteUrl = 'https://github.com/247321453/HttpUtil'
 def gitUrl = 'https://github.com/247321453/HttpUtil.git'
 group = 'com.github.247321453'
-version = 1.6
+version = 1.7
 sourceCompatibility = 1.7
 jar {
     manifest {
