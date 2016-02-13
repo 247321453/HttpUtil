@@ -12,14 +12,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 public class DownloadThread extends Thread {
 
-    private volatile DownloadListener listener;
+    private final List<DownloadListener> listeners = new ArrayList<DownloadListener>();
     private volatile boolean isDownloading = false;
+    private volatile boolean Lock = false;
     private static final int BUFF_SIZE = 1024 * 512;
 
     private String mUrl;
@@ -37,7 +40,8 @@ public class DownloadThread extends Thread {
         this.mUrl = url;
         this.mFile = file;
         this.thread = thread;
-        this.listener = listener;
+        if (listener != null)
+            this.listeners.add(listener);
         this.cache_size = cache_size;
         mDownloadInfo = new DownloadInfo(file + ".cfg", cache_size);
         tmpFile = new File(mFile + ".tmp");
@@ -45,6 +49,11 @@ public class DownloadThread extends Thread {
 
     public long getContentLength() {
         return mDownloadInfo.getLength();
+    }
+
+    public void addListener(DownloadListener listener) {
+        if (listener != null)
+            this.listeners.add(listener);
     }
 
     @Override
@@ -66,8 +75,10 @@ public class DownloadThread extends Thread {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        if (listener != null) {
-            listener.onStart(mUrl, mFile);
+        for (DownloadListener listener : listeners) {
+            if (listener != null) {
+                listener.onStart(mUrl, mFile);
+            }
         }
         boolean read = mDownloadInfo.createOrRead();
         System.out.println("pre download by read?" + read + " " + mDownloadInfo);
@@ -91,15 +102,19 @@ public class DownloadThread extends Thread {
                 System.out.println("reset download..." + mDownloadInfo);
             }
         } else {
-            if (listener != null) {
-                listener.onFinish(mUrl, mFile, DownloadError.ERR_404);
+            for (DownloadListener listener : listeners) {
+                if (listener != null) {
+                    listener.onFinish(mUrl, mFile, DownloadError.ERR_404);
+                }
             }
             return;
         }
         if (!isCompleted()) {
             System.out.println("start download..." + mDownloadInfo);
-            if (listener != null) {
-                listener.onStart(mUrl, mFile);
+            for (DownloadListener listener : listeners) {
+                if (listener != null) {
+                    listener.onStart(mUrl, mFile);
+                }
             }
             for (int i = 0; i < thread; i++) {
                 if (startDownload(i)) {
@@ -188,8 +203,10 @@ public class DownloadThread extends Thread {
                 input = httpURLConnection.getInputStream();
             }
             if (input == null) {
-                if (listener != null) {
-                    listener.onFinish(mUrl, mFile, DownloadError.ERR_404);
+                for (DownloadListener listener : listeners) {
+                    if (listener != null) {
+                        listener.onFinish(mUrl, mFile, DownloadError.ERR_404);
+                    }
                 }
             } else {
                 if (!tmpFile.exists()) {
@@ -204,8 +221,10 @@ public class DownloadThread extends Thread {
                     output.write(buffer, 0, length);
                     compeleteSize += length;
                     mDownloadInfo.updateBlock(index, new long[]{compeleteSize, total});
-                    if (listener != null) {
-                        listener.onProgress(mUrl, mFile, compeleteSize, total, false);
+                    for (DownloadListener listener : listeners) {
+                        if (listener != null) {
+                            listener.onProgress(mUrl, mFile, compeleteSize, total, false);
+                        }
                     }
                 }
             }
@@ -226,8 +245,10 @@ public class DownloadThread extends Thread {
         long alllength = mDownloadInfo.getLength();
         if (mFile == null) {
             System.err.println("file is null");
-            if (listener != null) {
-                listener.onFinish(mUrl, mFile, DownloadError.ERR_FILE);
+            for (DownloadListener listener : listeners) {
+                if (listener != null) {
+                    listener.onFinish(mUrl, mFile, DownloadError.ERR_FILE);
+                }
             }
         } else {
             if (tmpFile.length() == alllength) {
@@ -237,18 +258,24 @@ public class DownloadThread extends Thread {
                     IOUtil.createDirByFile(rfile);
                     IOUtil.renameTo(tmpFile, rfile);
                     IOUtil.delete(new File(mFile + ".cfg"));
-                    if (listener != null) {
-                        listener.onFinish(mUrl, mFile, DownloadError.ERR_NONE);
+                    for (DownloadListener listener : listeners) {
+                        if (listener != null) {
+                            listener.onFinish(mUrl, mFile, DownloadError.ERR_NONE);
+                        }
                     }
                 } catch (Exception e) {
-                    if (listener != null) {
-                        listener.onFinish(mUrl, mFile, DownloadError.ERR_OTHER);
+                    for (DownloadListener listener : listeners) {
+                        if (listener != null) {
+                            listener.onFinish(mUrl, mFile, DownloadError.ERR_OTHER);
+                        }
                     }
                 }
             } else {
                 System.err.println("alllength is bad " + tmpFile.length() + "/" + alllength);
-                if (listener != null) {
-                    listener.onFinish(mUrl, mFile, DownloadError.ERR_FILE);
+                for (DownloadListener listener : listeners) {
+                    if (listener != null) {
+                        listener.onFinish(mUrl, mFile, DownloadError.ERR_FILE);
+                    }
                 }
             }
         }
@@ -262,7 +289,7 @@ public class DownloadThread extends Thread {
         request.setCanRedirects(false);
         request.setDefaultAngent();
         HttpURLConnection connection = null;
-        Map<String, String> datas = new HashMap<>();
+        Map<String, String> datas = new HashMap<String, String>();
         datas.put(HttpUtil.HEADER_RANGE, "bytes=" + 1 + "-");
         try {
             connection = HttpUtil.connect(request, datas);

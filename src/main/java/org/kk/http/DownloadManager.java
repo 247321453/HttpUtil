@@ -69,11 +69,12 @@ public class DownloadManager {
         if (url == null || file == null)
             return false;
         //变量
-        if (sStatus.get(file) != null) {
+        DownloadThread thread = sStatus.get(file);
+        if (thread != null) {
+            thread.addListener(listener);
             return false;
         }
-        DownloadThread thread = new DownloadThread(mPool, url, MAX_POOL / 2, file,
-                Cache_size,
+        thread = new DownloadThread(mPool, url, MAX_POOL / 2, file, Cache_size,
                 new MultiDownloadListener(listener));
         sStatus.put(file, thread);
         mPool.execute(thread);
