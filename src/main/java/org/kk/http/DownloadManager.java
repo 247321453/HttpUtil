@@ -2,6 +2,7 @@ package org.kk.http;
 
 import org.kk.http.bean.DownloadError;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,6 +86,13 @@ public class DownloadManager {
      * 关闭
      */
     public void close() {
+        int count = sStatus.size();
+        Collection<DownloadThread> threads = sStatus.values();
+        for (DownloadThread thread : threads) {
+            if (thread != null && thread.isDownloading()) {
+                thread.interrupt();
+            }
+        }
         mPool.shutdown();
     }
 

@@ -62,6 +62,10 @@ public class DownloadThread extends Thread {
         super.interrupt();
     }
 
+    public boolean isDownloading() {
+        return isDownloading;
+    }
+
     public long getProgress() {
         return tmpFile.length();
     }
