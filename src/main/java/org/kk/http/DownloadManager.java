@@ -8,39 +8,31 @@ import java.util.concurrent.Executors;
 
 public class DownloadManager {
     ExecutorService mPool;
-    public static int MAX_POOL = 8;
+    public int MAX_POOL = 8;
     /** 0 则是单线程下载 */
-    public static int Cache_size = 0;
+    public int Cache_size = 0;
     static DownloadManager sDownloadManager = null;
-    final HashMap<String, DownloadThread> sStatus = new HashMap<>();
+    final static HashMap<String, DownloadThread> sStatus = new HashMap<String, DownloadThread>();
 
-    private DownloadManager(int num) {
-        mPool = Executors.newFixedThreadPool(Math.min(num, MAX_POOL));
-    }
-
-    /***
-     *
-     * @param num 线程数
-     * @param cache_size 缓存大小
-     */
-    public static void init(int num, int cache_size) {
+    public DownloadManager(int num, int cache_size) {
         MAX_POOL = num;
         Cache_size = cache_size;
+        mPool = Executors.newFixedThreadPool(MAX_POOL);
     }
 
     /**
-     *
      * @return 下载管理器
      */
     public static DownloadManager getInstance() {
         if (sDownloadManager == null) {
-            sDownloadManager = new DownloadManager(MAX_POOL);
+            sDownloadManager = new DownloadManager(4, 512 * 1024);
         }
         return sDownloadManager;
     }
 
     /***
      * 下载线程
+     *
      * @param filepath 保存文件路径
      * @return 线程
      */
@@ -52,6 +44,7 @@ public class DownloadManager {
 
     /***
      * 停止下载
+     *
      * @param filepath 保存文件路径
      */
     public void stopDownload(String filepath) {
@@ -65,9 +58,10 @@ public class DownloadManager {
     }
 
     /**
-     *下载
-     * @param url 链接
-     * @param file 保存文件路径
+     * 下载
+     *
+     * @param url      链接
+     * @param file     保存文件路径
      * @param listener 监听
      * @return 是否能下载
      */
@@ -78,7 +72,7 @@ public class DownloadManager {
         if (sStatus.get(file) != null) {
             return false;
         }
-        DownloadThread thread = new DownloadThread(mPool, url, file,
+        DownloadThread thread = new DownloadThread(mPool, url, MAX_POOL / 2, file,
                 Cache_size,
                 new MultiDownloadListener(listener));
         sStatus.put(file, thread);

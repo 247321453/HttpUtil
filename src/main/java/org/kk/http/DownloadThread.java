@@ -20,7 +20,6 @@ public class DownloadThread extends Thread {
 
     private volatile DownloadListener listener;
     private volatile boolean isDownloading = false;
-    private static final int MAX_THREAD = 3;
     private static final int BUFF_SIZE = 1024 * 512;
 
     private String mUrl;
@@ -29,13 +28,15 @@ public class DownloadThread extends Thread {
     private DownloadInfo mDownloadInfo;
     private ExecutorService executor;
     private int cache_size;
+    private int thread;
 
-    public DownloadThread(ExecutorService executor, String url, String file, int cache_size,
+    public DownloadThread(ExecutorService executor, String url, int thread, String file, int cache_size,
                           DownloadListener listener) {
         super(file);
         this.executor = executor;
         this.mUrl = url;
         this.mFile = file;
+        this.thread = thread;
         this.listener = listener;
         this.cache_size = cache_size;
         mDownloadInfo = new DownloadInfo(file + ".cfg", cache_size);
@@ -65,7 +66,7 @@ public class DownloadThread extends Thread {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        if(listener!=null){
+        if (listener != null) {
             listener.onStart(mUrl, mFile);
         }
         boolean read = mDownloadInfo.createOrRead();
@@ -100,7 +101,7 @@ public class DownloadThread extends Thread {
             if (listener != null) {
                 listener.onStart(mUrl, mFile);
             }
-            for (int i = 0; i < MAX_THREAD; i++) {
+            for (int i = 0; i < thread; i++) {
                 if (startDownload(i)) {
                     System.out.println("start thread ok " + i);
                 } else {
@@ -169,7 +170,7 @@ public class DownloadThread extends Thread {
         request.setMethod(HttpRequest.GET);
         request.setCanRedirects(false);
         request.setDefaultAngent();
-        Map<String, String> datas = new HashMap<>();
+        Map<String, String> datas = new HashMap<String, String>();
         datas.put(HttpUtil.HEADER_RANGE, "bytes=" + start + "-" + total);
         datas.put(HttpUtil.HEADER_CONNECTION, "Keep - Alive");
         HttpURLConnection httpURLConnection = null;
