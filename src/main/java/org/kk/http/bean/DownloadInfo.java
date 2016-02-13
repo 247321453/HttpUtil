@@ -89,6 +89,23 @@ public class DownloadInfo {
         return b;
     }
 
+    public long getCompletedSize() {
+        if (blocks == null) {
+            System.err.println("blocks is null");
+            return 0;
+        }
+        long size = 0;
+        for (int i = 0; i < block_count; i++) {
+            size += blocks[i][0];
+        }
+        return size;
+    }
+
+    public float getProgress() {
+        long pos = getCompletedSize();
+        return ((float) pos / (float) length) * 100.0f;
+    }
+
     /***
      * 设置需要下载内容大小
      *

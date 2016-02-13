@@ -3,7 +3,6 @@ package org.kk.http.bean;
 import org.kk.http.util.UriUtils;
 
 import java.io.Serializable;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -137,7 +136,7 @@ public class HttpRequest implements Serializable {
 
     public HttpRequest addData(String key, String value) {
         if (this.datas == null) {
-            this.datas = new HashMap<>();
+            this.datas = new HashMap<String, String>();
         }
         this.datas.put(key, value);
         return this;
@@ -164,12 +163,7 @@ public class HttpRequest implements Serializable {
     }
 
     public HttpRequest setEncoding(String encoding) {
-        try {
-            Charset.forName(encoding);
-            this.encoding = encoding;
-        } catch (Exception e) {
-
-        }
+        this.encoding = encoding;
         return this;
     }
 }

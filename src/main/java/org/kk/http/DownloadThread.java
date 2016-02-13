@@ -79,11 +79,6 @@ public class DownloadThread extends Thread {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        for (DownloadListener listener : listeners) {
-            if (listener != null) {
-                listener.onStart(mUrl, mFile);
-            }
-        }
         boolean read = mDownloadInfo.createOrRead();
         System.out.println("pre download by read?" + read + " " + mDownloadInfo);
         // 需要下载的长度
@@ -108,7 +103,7 @@ public class DownloadThread extends Thread {
         } else {
             for (DownloadListener listener : listeners) {
                 if (listener != null) {
-                    listener.onFinish(mUrl, mFile, DownloadError.ERR_404);
+                    listener.onFinish(DownloadError.ERR_404);
                 }
             }
             return;
@@ -117,7 +112,7 @@ public class DownloadThread extends Thread {
             System.out.println("start download..." + mDownloadInfo);
             for (DownloadListener listener : listeners) {
                 if (listener != null) {
-                    listener.onStart(mUrl, mFile);
+                    listener.onStart(mDownloadInfo.getProgress(), mDownloadInfo.getLength());
                 }
             }
             for (int i = 0; i < thread; i++) {
@@ -209,7 +204,7 @@ public class DownloadThread extends Thread {
             if (input == null) {
                 for (DownloadListener listener : listeners) {
                     if (listener != null) {
-                        listener.onFinish(mUrl, mFile, DownloadError.ERR_404);
+                        listener.onFinish(DownloadError.ERR_404);
                     }
                 }
             } else {
@@ -227,7 +222,7 @@ public class DownloadThread extends Thread {
                     mDownloadInfo.updateBlock(index, new long[]{compeleteSize, total});
                     for (DownloadListener listener : listeners) {
                         if (listener != null) {
-                            listener.onProgress(mUrl, mFile, compeleteSize, total, false);
+                            listener.onProgress(mDownloadInfo.getProgress());
                         }
                     }
                 }
@@ -251,7 +246,7 @@ public class DownloadThread extends Thread {
             System.err.println("file is null");
             for (DownloadListener listener : listeners) {
                 if (listener != null) {
-                    listener.onFinish(mUrl, mFile, DownloadError.ERR_FILE);
+                    listener.onFinish(DownloadError.ERR_FILE);
                 }
             }
         } else {
@@ -264,13 +259,13 @@ public class DownloadThread extends Thread {
                     IOUtil.delete(new File(mFile + ".cfg"));
                     for (DownloadListener listener : listeners) {
                         if (listener != null) {
-                            listener.onFinish(mUrl, mFile, DownloadError.ERR_NONE);
+                            listener.onFinish(DownloadError.ERR_NONE);
                         }
                     }
                 } catch (Exception e) {
                     for (DownloadListener listener : listeners) {
                         if (listener != null) {
-                            listener.onFinish(mUrl, mFile, DownloadError.ERR_OTHER);
+                            listener.onFinish(DownloadError.ERR_OTHER);
                         }
                     }
                 }
@@ -278,7 +273,7 @@ public class DownloadThread extends Thread {
                 System.err.println("alllength is bad " + tmpFile.length() + "/" + alllength);
                 for (DownloadListener listener : listeners) {
                     if (listener != null) {
-                        listener.onFinish(mUrl, mFile, DownloadError.ERR_FILE);
+                        listener.onFinish(DownloadError.ERR_FILE);
                     }
                 }
             }
@@ -298,7 +293,7 @@ public class DownloadThread extends Thread {
         try {
             connection = HttpUtil.connect(request, datas);
             int code = connection.getResponseCode();
-            length = connection.getContentLengthLong();
+            length = connection.getContentLength();
             if (code == HttpURLConnection.HTTP_PARTIAL) {
                 length = -(length + 1);
             }

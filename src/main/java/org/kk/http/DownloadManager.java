@@ -76,7 +76,7 @@ public class DownloadManager {
             return false;
         }
         thread = new DownloadThread(mPool, url, MAX_POOL / 2, file, Cache_size,
-                new MultiDownloadListener(listener));
+                new MultiDownloadListener(file, listener));
         sStatus.put(file, thread);
         mPool.execute(thread);
         return true;
@@ -98,30 +98,32 @@ public class DownloadManager {
 
     class MultiDownloadListener implements DownloadListener {
         DownloadListener parent;
+        String file;
 
-        public MultiDownloadListener(DownloadListener parent) {
+        public MultiDownloadListener(String file, DownloadListener parent) {
+            this.file = file;
             this.parent = parent;
         }
 
         @Override
-        public void onFinish(String url, String file, DownloadError err) {
+        public void onFinish(DownloadError err) {
             if (parent != null) {
-                parent.onFinish(url, file, err);
+                parent.onFinish(err);
             }
             sStatus.remove(file);
         }
 
         @Override
-        public void onStart(String url, String file) {
+        public void onStart(float p, long length) {
             if (parent != null) {
-                parent.onStart(url, file);
+                parent.onStart(p, length);
             }
         }
 
         @Override
-        public void onProgress(String url, String file, long pos, long length, boolean writed) {
+        public void onProgress(float p) {
             if (parent != null) {
-                parent.onProgress(url, file, pos, length, writed);
+                parent.onProgress(p);
             }
         }
     }
